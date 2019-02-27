@@ -1,11 +1,19 @@
 package com.wesly.manage.config.shiro;
 
+import com.wesly.manage.config.shiro.cache.RedissonShiroCacheManager;
+import com.wesly.manage.config.shiro.session.RedissonSessionDao;
+import com.wesly.manage.config.shiro.session.RedissonWebSessionManager;
 import com.wesly.manage.service.UserService;
+import org.apache.shiro.cache.CacheManager;
+import org.apache.shiro.cache.MemoryConstrainedCacheManager;
 import org.apache.shiro.mgt.SecurityManager;
+import org.apache.shiro.session.mgt.SessionManager;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,14 +38,26 @@ public class ShiroConfig {
     }
 
     @Bean
-    public SecurityManager securityManager(UserRealm userRealm) {
+    public CacheManager shiroCacheManager(RedissonClient redisson) {
+        return new RedissonShiroCacheManager(redisson);
+    }
+
+    @Bean
+    public SessionManager sessionManager(RedissonClient redisson) {
+        RedissonWebSessionManager redissonWebSessionManager = new RedissonWebSessionManager();
+        redissonWebSessionManager.setSessionDAO(new RedissonSessionDao(redisson, null));
+        return redissonWebSessionManager;
+    }
+
+    @Bean
+    public SecurityManager securityManager(UserRealm userRealm, CacheManager cacheManager, SessionManager sessionManager) {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
         // 设置realm.
         securityManager.setRealm(userRealm);
         // 自定义缓存实现 使用redis
-        // securityManager.setCacheManager(new MemoryConstrainedCacheManager());
+        securityManager.setCacheManager(cacheManager);
         // 自定义session管理 使用redis
-        // securityManager.setSessionManager(sessionManager());
+        securityManager.setSessionManager(sessionManager);
         return securityManager;
     }
 

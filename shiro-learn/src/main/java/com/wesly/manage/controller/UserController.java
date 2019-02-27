@@ -37,6 +37,7 @@ public class UserController {
         }
         //验证是否登录成功
         if (currentUser.isAuthenticated()) {
+            currentUser.getSession().setAttribute("user",currentUser.getPrincipal());
             return "redirect:/index";
         } else {
             return "redirect:/login";

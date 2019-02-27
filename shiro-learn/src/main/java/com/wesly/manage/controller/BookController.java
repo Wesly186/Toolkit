@@ -6,6 +6,7 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 
 @Slf4j
@@ -14,7 +15,7 @@ import java.util.ArrayList;
 public class BookController {
 
     @GetMapping("index")
-    public String book() {
+    public String book(HttpServletRequest request) {
         return "/book/index";
     }
 

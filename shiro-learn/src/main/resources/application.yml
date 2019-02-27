@@ -11,3 +11,16 @@ spring:
 
 mybatis:
   mapper-locations: mapper/*.xml
+
+redis:
+  mode: single
+  host: localhost
+  port: 6379
+  database: 0
+  password:
+  clientName: shiro-learn
+  connectionPoolSize: 10
+  connectionMinimumIdleSize: 5
+  idleConnectionTimeout: 20000
+  retryAttempts: 5
+  retryInterval: 2000
