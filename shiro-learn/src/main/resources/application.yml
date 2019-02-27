@@ -1,0 +1,11 @@
+spring:
+  freemarker:
+    suffix: .ftl
+  datasource:
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/shiro-learn?useUnicode=true&characterEncoding=utf-8&useSSL=false&zeroDateTimeBehavior=convertToNull
+    username: root
+    password: hzsl@1234
+
+mybatis:
+  mapper-locations: mapper/*.xml
