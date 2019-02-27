@@ -35,9 +35,9 @@ public class ShiroConfig {
         // 设置realm.
         securityManager.setRealm(userRealm);
         // 自定义缓存实现 使用redis
-        //securityManager.setCacheManager(cacheManager());
+        // securityManager.setCacheManager(new MemoryConstrainedCacheManager());
         // 自定义session管理 使用redis
-        //securityManager.setSessionManager(sessionManager());
+        // securityManager.setSessionManager(sessionManager());
         return securityManager;
     }
 
@@ -74,6 +74,12 @@ public class ShiroConfig {
         return new LifecycleBeanPostProcessor();
     }
 
+    /**
+     * RequireXXX advisor
+     *
+     * @param securityManager
+     * @return
+     */
     @Bean
     public AuthorizationAttributeSourceAdvisor authorizationAttributeSourceAdvisor(DefaultWebSecurityManager securityManager) {
         AuthorizationAttributeSourceAdvisor advisor = new AuthorizationAttributeSourceAdvisor();

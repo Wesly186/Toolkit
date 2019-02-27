@@ -31,15 +31,13 @@ public class UserRealm extends AuthorizingRealm {
 
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principalCollection) {
-        String username = (String) principalCollection.getPrimaryPrincipal();
+        User user = (User) principalCollection.getPrimaryPrincipal();
 
         // 根据身份信息从数据库中查询权限数据
-        List<String> permissions = userService.getUserPermissions(username);
+        List<String> permissions = userService.getUserPermissions(user.getId());
         //将权限信息封装为AuthorizationInfo
         SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
-        for (String permission : permissions) {
-            simpleAuthorizationInfo.addStringPermission(permission);
-        }
+        simpleAuthorizationInfo.addStringPermissions(permissions);
         return simpleAuthorizationInfo;
     }
 

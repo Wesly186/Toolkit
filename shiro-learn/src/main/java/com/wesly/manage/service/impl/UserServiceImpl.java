@@ -42,20 +42,15 @@ public class UserServiceImpl implements UserService {
     /**
      * 取多个角色权限的并集
      *
-     * @param username
+     * @param userId
      * @return
      */
     @Override
-    public List<String> getUserPermissions(String username) {
-        // 查找用户
-        UserExample userExample = new UserExample();
-        userExample.createCriteria()
-                .andNameEqualTo(username);
-        User user = userMapper.selectByExample(userExample).get(0);
+    public List<String> getUserPermissions(String userId) {
         // 查找角色
         UserRoleExample userRoleExample = new UserRoleExample();
         userRoleExample.createCriteria()
-                .andUserIdEqualTo(user.getId());
+                .andUserIdEqualTo(userId);
         List<UserRole> userRoles = userRoleMapper.selectByExample(userRoleExample);
         if (userRoles.size() == 0) {
             return new ArrayList<>();
@@ -63,7 +58,7 @@ public class UserServiceImpl implements UserService {
         // 查找权限
         RolePermissionExample rolePermissionExample = new RolePermissionExample();
         rolePermissionExample.createCriteria()
-                .andRoleIdIn(userRoles.stream().map(UserRole::getId).collect(Collectors.toList()));
+                .andRoleIdIn(userRoles.stream().map(UserRole::getRoleId).collect(Collectors.toList()));
         List<RolePermission> rolePermissions = rolePermissionMapper.selectByExample(rolePermissionExample);
         if (rolePermissions.size() == 0) {
             return new ArrayList<>();

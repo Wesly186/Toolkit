@@ -19,10 +19,4 @@ public class CredentialsMatcher extends SimpleCredentialsMatcher {
                 new String(simpleAuthenticationInfo.getCredentialsSalt().getBytes(), StandardCharsets.UTF_8), 2).toString();
         return this.equals(cypheredPassword, getCredentials(info));
     }
-
-    public static void main(String[] args) {
-        String cypheredPassword = new Md5Hash("951236WX",
-                "123", 1).toString();
-        System.out.println(cypheredPassword);
-    }
 }
