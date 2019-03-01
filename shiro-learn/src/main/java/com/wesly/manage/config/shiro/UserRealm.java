@@ -8,25 +8,31 @@ import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.apache.shiro.util.ByteSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserRealm extends AuthorizingRealm {
 
     private UserService userService;
 
-    private static final Logger logger = LoggerFactory.getLogger(UserRealm.class);
-
-    public UserRealm(UserService userService) {
+    public UserRealm(UserService userService,String authorizationCacheName) {
         this.userService = userService;
+        super.setAuthorizationCacheName(authorizationCacheName);
     }
 
     @Override
     public String getName() {
         return "userRealm";
+    }
+
+    @Override
+    public String getAuthorizationCacheName() {
+        return super.getAuthorizationCacheName();
+    }
+
+    @Override
+    protected Object getAuthorizationCacheKey(PrincipalCollection principals) {
+        return ((User) principals.getPrimaryPrincipal()).getId();
     }
 
     @Override

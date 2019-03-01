@@ -5,14 +5,12 @@ import com.wesly.manage.config.shiro.session.RedissonSessionDao;
 import com.wesly.manage.config.shiro.session.RedissonWebSessionManager;
 import com.wesly.manage.service.UserService;
 import org.apache.shiro.cache.CacheManager;
-import org.apache.shiro.cache.MemoryConstrainedCacheManager;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.session.mgt.SessionManager;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
-import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.context.annotation.Bean;
@@ -32,7 +30,7 @@ public class ShiroConfig {
      */
     @Bean
     public UserRealm userRealm(UserService userService) {
-        UserRealm userRealm = new UserRealm(userService);
+        UserRealm userRealm = new UserRealm(userService,"shiro-authorization");
         userRealm.setCredentialsMatcher(new CredentialsMatcher());
         return userRealm;
     }
@@ -45,6 +43,7 @@ public class ShiroConfig {
     @Bean
     public SessionManager sessionManager(RedissonClient redisson) {
         RedissonWebSessionManager redissonWebSessionManager = new RedissonWebSessionManager();
+        redissonWebSessionManager.setGlobalSessionTimeout(3600000L);
         redissonWebSessionManager.setSessionDAO(new RedissonSessionDao(redisson, null));
         return redissonWebSessionManager;
     }
@@ -83,7 +82,6 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/auth", "anon");
         filterChainDefinitionMap.put("/logout", "logout");
         filterChainDefinitionMap.put("/**", "authc");
-        //filterChainDefinitionMap.put("/book/**", "authc,perms[book:list],roles[admin]");
 
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         return shiroFilterFactoryBean;

@@ -111,8 +111,7 @@ public class RedissonSession implements Session {
         Date res = null;
         try {
             res = script.eval(this.infoKey, RScript.Mode.READ_ONLY,
-                    GET_START_SCRIPT,
-                    RScript.ReturnType.MAPVALUE, keys);
+                    GET_START_SCRIPT, RScript.ReturnType.MAPVALUE, keys);
         } catch (RedisException e) {
             convertException(e);
         }
