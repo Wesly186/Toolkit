@@ -11,9 +11,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class IndexController {
 
-    @Autowired
-    private SecurityManager securityManager;
-
     @GetMapping
     public String index() {
         return "index";

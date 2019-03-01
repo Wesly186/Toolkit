@@ -5,11 +5,13 @@ import com.wesly.manage.config.shiro.session.RedissonSessionDao;
 import com.wesly.manage.config.shiro.session.RedissonWebSessionManager;
 import com.wesly.manage.service.UserService;
 import org.apache.shiro.cache.CacheManager;
+import org.apache.shiro.mgt.RememberMeManager;
 import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.session.mgt.SessionManager;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
+import org.apache.shiro.web.mgt.CookieRememberMeManager;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.servlet.Cookie;
 import org.apache.shiro.web.servlet.ShiroHttpSession;
@@ -47,7 +49,7 @@ public class ShiroConfig {
     public SessionManager sessionManager(RedissonClient redisson) {
         // 设置cookie max age
         Cookie cookie = new SimpleCookie(ShiroHttpSession.DEFAULT_SESSION_ID_NAME);
-        cookie.setMaxAge(3600);
+        cookie.setMaxAge(-1);
         RedissonWebSessionManager redissonWebSessionManager = new RedissonWebSessionManager();
         redissonWebSessionManager.setGlobalSessionTimeout(3600000L);
         redissonWebSessionManager.setSessionDAO(new RedissonSessionDao(redisson, null));
@@ -58,7 +60,18 @@ public class ShiroConfig {
     }
 
     @Bean
-    public SecurityManager securityManager(UserRealm userRealm, CacheManager cacheManager, SessionManager sessionManager) {
+    public RememberMeManager rememberMeManager() {
+        Cookie cookie = new SimpleCookie("rememberMe");
+        cookie.setMaxAge(60 * 60 * 24 * 14);
+        CookieRememberMeManager rememberMeManager = new CookieRememberMeManager();
+        //设置对称加密秘钥
+        rememberMeManager.setCipherKey("1234567812345678".getBytes());
+        rememberMeManager.setCookie(cookie);
+        return rememberMeManager;
+    }
+
+    @Bean
+    public SecurityManager securityManager(UserRealm userRealm, CacheManager cacheManager, SessionManager sessionManager, RememberMeManager rememberMeManager) {
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
         // 设置realm.
         securityManager.setRealm(userRealm);
@@ -66,6 +79,7 @@ public class ShiroConfig {
         securityManager.setCacheManager(cacheManager);
         // 自定义session管理 使用redis
         securityManager.setSessionManager(sessionManager);
+        securityManager.setRememberMeManager(rememberMeManager);
         return securityManager;
     }
 
@@ -90,6 +104,7 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/login", "anon");
         filterChainDefinitionMap.put("/auth", "anon");
         filterChainDefinitionMap.put("/logout", "logout");
+        filterChainDefinitionMap.put("/index", "user");
         filterChainDefinitionMap.put("/**", "authc");
 
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);

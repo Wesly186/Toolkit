@@ -18,8 +18,8 @@ public class UserController {
     }
 
     @PostMapping("/auth")
-    public String login(@RequestParam String username, @RequestParam String password, RedirectAttributes redirectAttributes) {
-        UsernamePasswordToken token = new UsernamePasswordToken(username, password);
+    public String login(@RequestParam String username, @RequestParam String password, @RequestParam Boolean rememberMe, RedirectAttributes redirectAttributes) {
+        UsernamePasswordToken token = new UsernamePasswordToken(username, password, rememberMe);
         //获取当前的Subject
         Subject currentUser = SecurityUtils.getSubject();
         try {

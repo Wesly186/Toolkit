@@ -1,5 +1,6 @@
 package com.wesly.manage.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -7,7 +8,7 @@ import java.util.Date;
  * @date: 2019-02-26 17:36:49
  * @description:  
  */
-public class User {
+public class User implements Serializable {
     /**
      * 
      */
