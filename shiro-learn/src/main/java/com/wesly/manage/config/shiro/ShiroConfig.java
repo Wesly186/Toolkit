@@ -52,6 +52,8 @@ public class ShiroConfig {
         redissonWebSessionManager.setGlobalSessionTimeout(3600000L);
         redissonWebSessionManager.setSessionDAO(new RedissonSessionDao(redisson, null));
         redissonWebSessionManager.setSessionIdCookie(cookie);
+        // 是否在重定向时将session id拼在url后面
+        redissonWebSessionManager.setSessionIdUrlRewritingEnabled(false);
         return redissonWebSessionManager;
     }
 
