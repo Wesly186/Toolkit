@@ -16,7 +16,6 @@ public class IndexController {
 
     @GetMapping
     public String index() {
-        log.info(((DefaultWebSecurityManager)securityManager).getSessionManager().getClass().getName());
         return "index";
     }
 }

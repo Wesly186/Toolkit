@@ -11,6 +11,9 @@ import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
+import org.apache.shiro.web.servlet.Cookie;
+import org.apache.shiro.web.servlet.ShiroHttpSession;
+import org.apache.shiro.web.servlet.SimpleCookie;
 import org.redisson.api.RedissonClient;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.context.annotation.Bean;
@@ -30,7 +33,7 @@ public class ShiroConfig {
      */
     @Bean
     public UserRealm userRealm(UserService userService) {
-        UserRealm userRealm = new UserRealm(userService,"shiro-authorization");
+        UserRealm userRealm = new UserRealm(userService, "shiro-authorization");
         userRealm.setCredentialsMatcher(new CredentialsMatcher());
         return userRealm;
     }
@@ -42,9 +45,13 @@ public class ShiroConfig {
 
     @Bean
     public SessionManager sessionManager(RedissonClient redisson) {
+        // 设置cookie max age
+        Cookie cookie = new SimpleCookie(ShiroHttpSession.DEFAULT_SESSION_ID_NAME);
+        cookie.setMaxAge(3600);
         RedissonWebSessionManager redissonWebSessionManager = new RedissonWebSessionManager();
         redissonWebSessionManager.setGlobalSessionTimeout(3600000L);
         redissonWebSessionManager.setSessionDAO(new RedissonSessionDao(redisson, null));
+        redissonWebSessionManager.setSessionIdCookie(cookie);
         return redissonWebSessionManager;
     }
 
