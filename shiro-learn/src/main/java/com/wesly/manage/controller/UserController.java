@@ -1,10 +1,15 @@
 package com.wesly.manage.controller;
 
+import com.wesly.manage.config.shiro.UserRealm;
+import com.wesly.manage.model.User;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
+import org.apache.shiro.subject.SimplePrincipalCollection;
 import org.apache.shiro.subject.Subject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -12,13 +17,16 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 public class UserController {
 
+    @Autowired
+    private UserRealm userRealm;
+
     @GetMapping("/login")
     public String loginPage() {
         return "login";
     }
 
     @PostMapping("/auth")
-    public String login(@RequestParam String username, @RequestParam String password, @RequestParam Boolean rememberMe, RedirectAttributes redirectAttributes) {
+    public String login(@RequestParam String username, @RequestParam String password, @RequestParam(defaultValue = "false") Boolean rememberMe, RedirectAttributes redirectAttributes) {
         UsernamePasswordToken token = new UsernamePasswordToken(username, password, rememberMe);
         //获取当前的Subject
         Subject currentUser = SecurityUtils.getSubject();
@@ -49,5 +57,13 @@ public class UserController {
         SecurityUtils.getSubject().logout();
         redirectAttributes.addFlashAttribute("message", "您已安全退出");
         return "redirect:/login";
+    }
+
+    @GetMapping("/update")
+    public String update() {
+        User user = new User();
+        user.setId("ae4ed40f-0af9-4fde-880c-f7e13a188735");
+        userRealm.clearCachedAuthorizationInfo(new SimplePrincipalCollection(user, userRealm.getName()));
+        return "redirect:/index";
     }
 }

@@ -15,7 +15,7 @@ public class UserRealm extends AuthorizingRealm {
 
     private UserService userService;
 
-    public UserRealm(UserService userService,String authorizationCacheName) {
+    public UserRealm(UserService userService, String authorizationCacheName) {
         this.userService = userService;
         super.setAuthorizationCacheName(authorizationCacheName);
     }
@@ -26,13 +26,13 @@ public class UserRealm extends AuthorizingRealm {
     }
 
     @Override
-    public String getAuthorizationCacheName() {
-        return super.getAuthorizationCacheName();
+    protected Object getAuthorizationCacheKey(PrincipalCollection principals) {
+        return ((User) principals.getPrimaryPrincipal()).getId();
     }
 
     @Override
-    protected Object getAuthorizationCacheKey(PrincipalCollection principals) {
-        return ((User) principals.getPrimaryPrincipal()).getId();
+    public void clearCachedAuthorizationInfo(PrincipalCollection principals) {
+        super.clearCachedAuthorizationInfo(principals);
     }
 
     @Override
