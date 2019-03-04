@@ -1,6 +1,7 @@
 package com.wesly.manage.config.shiro;
 
 import com.wesly.manage.config.shiro.cache.RedissonShiroCacheManager;
+import com.wesly.manage.config.shiro.filter.KickoutSessionControlFilter;
 import com.wesly.manage.config.shiro.session.RedissonSessionDao;
 import com.wesly.manage.config.shiro.session.RedissonWebSessionManager;
 import com.wesly.manage.service.UserService;
@@ -18,8 +19,10 @@ import org.apache.shiro.web.servlet.ShiroHttpSession;
 import org.apache.shiro.web.servlet.SimpleCookie;
 import org.redisson.api.RedissonClient;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.filter.DelegatingFilterProxy;
 
 import javax.servlet.Filter;
 import java.util.LinkedHashMap;
@@ -84,7 +87,28 @@ public class ShiroConfig {
     }
 
     @Bean
-    public ShiroFilterFactoryBean shiroFilter(SecurityManager securityManager) {
+    public KickoutSessionControlFilter kickoutSessionControlFilter(CacheManager cacheManager, SessionManager sessionManager) {
+        KickoutSessionControlFilter filter = new KickoutSessionControlFilter();
+        filter.setCacheManager(cacheManager);
+        filter.setSessionManager(sessionManager);
+        filter.setKickoutAfter(false);
+        filter.setMaxSession(1);
+        filter.setKickoutUrl("/login?kickout=1");
+        return filter;
+    }
+
+    @Bean
+    public FilterRegistrationBean<DelegatingFilterProxy> delegatingFilterProxy(){
+        FilterRegistrationBean<DelegatingFilterProxy> filterRegistrationBean = new FilterRegistrationBean<>();
+        DelegatingFilterProxy proxy = new DelegatingFilterProxy();
+        proxy.setTargetFilterLifecycle(true);
+        proxy.setTargetBeanName("shiroFilter");
+        filterRegistrationBean.setFilter(proxy);
+        return filterRegistrationBean;
+    }
+
+    @Bean
+    public ShiroFilterFactoryBean shiroFilter(SecurityManager securityManager, KickoutSessionControlFilter kickoutSessionControlFilter) {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
         shiroFilterFactoryBean.setSecurityManager(securityManager);
         // 没有登陆的用户只能访问登陆页面
@@ -95,6 +119,7 @@ public class ShiroConfig {
         shiroFilterFactoryBean.setUnauthorizedUrl("/auth/err");
         //自定义拦截器
         Map<String, Filter> filtersMap = new LinkedHashMap<String, Filter>();
+        filtersMap.put("kickout", kickoutSessionControlFilter);
         shiroFilterFactoryBean.setFilters(filtersMap);
         // 权限控制map.
         Map<String, String> filterChainDefinitionMap = new LinkedHashMap<String, String>();
@@ -105,7 +130,7 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/auth", "anon");
         filterChainDefinitionMap.put("/logout", "logout");
         filterChainDefinitionMap.put("/", "user");
-        filterChainDefinitionMap.put("/**", "authc");
+        filterChainDefinitionMap.put("/**", "kickout,authc");
 
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         return shiroFilterFactoryBean;
