@@ -1,2 +1,49 @@
+mybatis:
+  mapper-locations: mapper/*.xml
 
-                                                  
+sharding:
+  jdbc:
+    datasource:
+      names: message0,message1
+      message0:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.jdbc.Driver
+        url: jdbc:mysql://localhost:3306/message0?useUnicode=true&characterEncoding=utf-8&useSSL=false&zeroDateTimeBehavior=convertToNull&serverTimezone=GMT%2B8
+        username: root
+        password: hzsl@1234
+      message1:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.jdbc.Driver
+        url: jdbc:mysql://localhost:3306/message1?useUnicode=true&characterEncoding=utf-8&useSSL=false&zeroDateTimeBehavior=convertToNull&serverTimezone=GMT%2B8
+        username: root
+        password: hzsl@1234
+    config:
+      sharding:
+        tables:
+          order:
+            actual-data-nodes: message$->{0..1}.order$->{0..1}
+            key-generator-column-name: id
+            database-strategy:
+              inline:
+                sharding-column: app_id
+                algorithm-expression: message$->{app_id % 2}
+            table-strategy:
+              inline:
+                sharding-column: phone
+                algorithm-expression: order$->{phone % 2}
+          message_record:
+            actual-data-nodes: message$->{0..1}.message_record$->{0..1}
+            key-generator-column-name: id
+            database-strategy:
+              inline:
+                sharding-column: app_id
+                algorithm-expression: message$->{app_id % 2}
+            table-strategy:
+              inline:
+                sharding-column: phone
+                algorithm-expression: message_record$->{phone % 2}
+        broadcast-tables: config
+        default-database-strategy:
+          inline:
+            sharding-column: app_id
+            algorithm-expression: message$->{app_id % 2}
