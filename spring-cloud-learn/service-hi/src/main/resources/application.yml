@@ -1,0 +1,22 @@
+server:
+  port: 8763
+spring:
+  application:
+    name: service-hi
+
+eureka:
+  instance:
+    prefer-ip-address: true
+    # 超时多久无心跳就移除instance，默认90秒
+    lease-expiration-duration-in-seconds: 90
+    # 续约时间，防止被移除，默认30秒
+    lease-renewal-interval-in-seconds: 30
+  client:
+    # 是否向eureka注册自己，默认为true
+    registerWithEureka: true
+    # 是否拉取服务列表，默认为true
+    fetchRegistry: true
+    # 拉取服务列表的时间间隔，默认为30秒
+    registry-fetch-interval-seconds: 10
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/,http://localhost:8762/eureka/

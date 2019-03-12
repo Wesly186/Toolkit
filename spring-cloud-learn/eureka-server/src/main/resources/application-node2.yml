@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: eureka-server
+
+server:
+  port: 8762
+
+eureka:
+  instance:
+    hostname: node2
+    # 超时多久无心跳就移除instance，默认90秒
+    lease-expiration-duration-in-seconds: 90
+    # 续约时间，防止被移除，默认30秒
+    lease-renewal-interval-in-seconds: 30
+  client:
+    # 是否向eureka注册自己，默认为true
+    registerWithEureka: true
+    # 是否拉取服务列表，默认为true
+    fetchRegistry: true
+    # 拉取服务列表的时间间隔，默认为30秒
+    registry-fetch-interval-seconds: 10
+    serviceUrl:
+      defaultZone: http://node1:8761/eureka/
+  server:
+    # 是否开启自我保护，默认为true（防止由于网络抖动而剔除正常的节点）
+    enable-self-preservation: false
+    # 清理无效节点check时长，默认60秒
+    eviction-interval-timer-in-ms: 60
